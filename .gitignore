@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build tools & large binaries
+*.jar
+*.apk
+*.idsig
+apk_package/
+
+# Flutter & Dart
+flutter_app/.dart_tool/
+flutter_app/.packages
+flutter_app/build/
+flutter_app/.flutter-plugins
+flutter_app/.flutter-plugins-dependencies
+
+# Logs & temp files
+*.log
+.tempmediaStorage/
+.DS_Store
+Thumbs.db

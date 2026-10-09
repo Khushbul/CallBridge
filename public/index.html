@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CallBridge 20-Round Pro - Cards Game</title>
+  <link rel="stylesheet" href="css/game.css?v=3">
+</head>
+<body>
+  <div id="app-container">
+    
+    <!-- ==========================================
+         SCREEN 1: MAIN MENU
+         ========================================== -->
+    <div id="screen-menu" class="screen active">
+      <div class="menu-card">
+        <div class="app-branding">
+          <div class="app-logo">♠ CALLBRIDGE</div>
+          <span class="app-badge-20">20 ROUNDS MATCH SUPPORT</span>
+        </div>
+
+        <div class="menu-options" id="main-menu-options">
+          <!-- Option 1: Play vs AI -->
+          <button class="btn-menu" id="btn-select-offline">
+            <span class="icon">👤</span>
+            <div class="title">
+              Play vs AI
+              <span class="desc">Offline practice match (3 AI Bots)</span>
+            </div>
+            <span>➔</span>
+          </button>
+
+          <!-- Option 2: Local Hotspot / LAN -->
+          <button class="btn-menu" id="btn-select-hotspot">
+            <span class="icon">📡</span>
+            <div class="title">
+              Play with Friends • Hotspot / LAN
+              <span class="desc">No Internet or PC needed (5, 10, 15, 20 Rounds)</span>
+            </div>
+            <span class="badge-hotspot">HOTSPOT</span>
+          </button>
+
+          <!-- Option 3: Online Multiplayer -->
+          <button class="btn-menu" id="btn-select-online">
+            <span class="icon">🌐</span>
+            <div class="title">
+              Online Multiplayer
+              <span class="desc">Create or join private room with code</span>
+            </div>
+            <span>➔</span>
+          </button>
+
+          <!-- Option 4: Rulebook -->
+          <button class="btn-menu" id="btn-select-rules">
+            <span class="icon">📖</span>
+            <div class="title">
+              Callbreak Rules
+              <span class="desc">Bidding, Trump (♠) & Scoring rules</span>
+            </div>
+            <span>ℹ️</span>
+          </button>
+        </div>
+
+        <!-- Subpanel: Offline AI Setup -->
+        <div class="config-subpanel" id="panel-offline-config">
+          <h3 style="color: var(--gold-light); margin-bottom: 12px;">Single Player Setup</h3>
+          
+          <div class="round-selector-group">
+            <label class="round-selector-label">Select Match Length</label>
+            <div class="round-pills" id="offline-round-pills">
+              <div class="round-pill" data-rounds="5">5 Rounds</div>
+              <div class="round-pill" data-rounds="10">10 Rounds</div>
+              <div class="round-pill" data-rounds="15">15 Rounds</div>
+              <div class="round-pill selected" data-rounds="20">● 20 Rounds</div>
+            </div>
+          </div>
+
+          <button class="btn-primary-action" id="btn-start-offline-game" style="margin-top: 14px;">
+            START MATCH ➔
+          </button>
+          <button class="hud-btn" id="btn-back-from-offline" style="width: 100%; margin-top: 10px; justify-content: center;">
+            ← Back to Main Menu
+          </button>
+        </div>
+
+        <!-- Subpanel: Hotspot / LAN Setup -->
+        <div class="config-subpanel" id="panel-hotspot-config">
+          <h3 style="color: var(--gold-light); margin-bottom: 8px;">📡 Hotspot / Local Network</h3>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+            One player turns on mobile hotspot and creates the game. Friends connect to that hotspot and join!
+          </p>
+
+          <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+            <button class="round-pill selected" id="tab-host-hotspot" style="flex: 1;">Host Game</button>
+            <button class="round-pill" id="tab-join-hotspot" style="flex: 1;">Join Game</button>
+          </div>
+
+          <!-- Host View -->
+          <div id="view-host-setup">
+            <label class="round-selector-label">Your Name</label>
+            <input type="text" class="input-field" id="host-player-name" value="Khushbul">
+
+            <div class="round-selector-group">
+              <label class="round-selector-label">Select Match Length</label>
+              <div class="round-pills" id="hotspot-round-pills">
+                <div class="round-pill" data-rounds="5">5 Rounds</div>
+                <div class="round-pill" data-rounds="10">10 Rounds</div>
+                <div class="round-pill" data-rounds="15">15 Rounds</div>
+                <div class="round-pill selected" data-rounds="20">● 20 Rounds</div>
+              </div>
+            </div>
+
+            <label class="round-selector-label">Room PIN (Optional)</label>
+            <input type="text" class="input-field" id="host-room-pin" placeholder="e.g. 1234">
+
+            <button class="btn-primary-action" id="btn-create-hotspot-room">
+              CREATE HOTSPOT TABLE
+            </button>
+          </div>
+
+          <!-- Join View -->
+          <div id="view-join-setup" style="display: none;">
+            <label class="round-selector-label">Your Name</label>
+            <input type="text" class="input-field" id="join-player-name" value="Friend">
+
+            <label class="round-selector-label">Host IP Address or Room Code</label>
+            <input type="text" class="input-field" id="join-host-ip" placeholder="e.g. 192.168.43.1 or ROOM CODE">
+
+            <label class="round-selector-label">Table PIN (If required)</label>
+            <input type="text" class="input-field" id="join-room-pin" placeholder="Optional PIN">
+
+            <div id="discovered-rooms-list" style="margin-bottom: 12px;"></div>
+
+            <button class="btn-primary-action" id="btn-connect-join-room">
+              CONNECT & JOIN TABLE
+            </button>
+          </div>
+
+          <button class="hud-btn" id="btn-back-from-hotspot" style="width: 100%; margin-top: 14px; justify-content: center;">
+            ← Back to Main Menu
+          </button>
+        </div>
+
+        <!-- Subpanel: Online Cloud Setup -->
+        <div class="config-subpanel" id="panel-online-config">
+          <h3 style="color: var(--gold-light); margin-bottom: 12px;">🌐 Online Cloud Multiplayer</h3>
+          
+          <label class="round-selector-label">Your Name</label>
+          <input type="text" class="input-field" id="online-player-name" value="Player">
+
+          <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+            <button class="round-pill selected" id="tab-create-online" style="flex: 1;">Create Room</button>
+            <button class="round-pill" id="tab-join-online" style="flex: 1;">Join Room</button>
+          </div>
+
+          <div id="view-online-create">
+            <div class="round-selector-group">
+              <label class="round-selector-label">Select Match Length</label>
+              <div class="round-pills" id="online-round-pills">
+                <div class="round-pill" data-rounds="5">5 Rounds</div>
+                <div class="round-pill" data-rounds="10">10 Rounds</div>
+                <div class="round-pill" data-rounds="15">15 Rounds</div>
+                <div class="round-pill selected" data-rounds="20">● 20 Rounds</div>
+              </div>
+            </div>
+            <button class="btn-primary-action" id="btn-create-online-room">
+              CREATE ONLINE ROOM
+            </button>
+          </div>
+
+          <div id="view-online-join" style="display: none;">
+            <label class="round-selector-label">6-Character Room Code</label>
+            <input type="text" class="input-field" id="online-join-code" placeholder="e.g. 482731">
+            <button class="btn-primary-action" id="btn-join-online-room">
+              JOIN ROOM
+            </button>
+          </div>
+
+          <button class="hud-btn" id="btn-back-from-online" style="width: 100%; margin-top: 14px; justify-content: center;">
+            ← Back to Main Menu
+          </button>
+        </div>
+
+        <!-- Subpanel: Rules -->
+        <div class="config-subpanel" id="panel-rules">
+          <h3 style="color: var(--gold-light); margin-bottom: 10px;">Callbreak Rules & 20 Rounds</h3>
+          <div style="font-size: 13px; line-height: 1.6; color: var(--text-muted); max-height: 280px; overflow-y: auto; padding-right: 6px; text-align: left;">
+            <p><strong>1. Deck & Trump:</strong> Played with 52 cards (no jokers). <strong>Spades (♠)</strong> is the permanent trump suit.</p>
+            <p style="margin-top: 6px;"><strong>2. Dealing & Bidding:</strong> 13 cards are dealt to each of 4 players. Players bid (call) 1 to 8+ tricks.</p>
+            <p style="margin-top: 6px;"><strong>3. Strict Trick Play:</strong> Players MUST follow the suit led. If they hold a higher card of the led suit, they MUST play it. If void in the led suit, they MUST play a Spade (trump) if they have one.</p>
+            <p style="margin-top: 6px;"><strong>4. Scoring:</strong> Making the bid awards the bid value + 0.1 for every extra trick (e.g. bid 3, won 4 = 3.1). Failing the bid awards negative points (-bid).</p>
+            <p style="margin-top: 6px;"><strong>5. 20-Round Championship:</strong> Matches run for 5, 10, 15, or up to 20 rounds. The player with the highest total score wins the tournament podium!</p>
+          </div>
+          <button class="hud-btn" id="btn-back-from-rules" style="width: 100%; margin-top: 14px; justify-content: center;">
+            ← Back to Main Menu
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ==========================================
+         SCREEN 2: MULTIPLAYER LOBBY
+         ========================================== -->
+    <div id="screen-lobby" class="screen">
+      <div class="lobby-card">
+        <div class="lobby-header">
+          <div>
+            <h2 style="color: var(--gold-light); font-size: 22px;">Multiplayer Table</h2>
+            <div id="lobby-match-info" style="font-size: 13px; color: var(--text-muted);">20-Round Match</div>
+          </div>
+          <div class="room-code-tag" id="lobby-room-code">ROOM: ------</div>
+        </div>
+
+        <div class="lobby-hotspot-banner" id="lobby-hotspot-info" style="display: none;">
+          <span style="font-size: 20px;">📡</span>
+          <div>
+            <strong>Hotspot Mode Active:</strong> Friends can connect to your Wi-Fi and open:
+            <div id="lobby-direct-url" style="color: #a5d6a7; font-weight: 700; margin-top: 2px;">http://192.168.43.1:3000</div>
+          </div>
+        </div>
+
+        <div class="lobby-slots" id="lobby-slots-container">
+          <!-- 4 player slots rendered dynamically -->
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+          <button class="btn-primary-action" id="btn-lobby-start" style="flex: 2;">
+            START MATCH (FILL WITH AI)
+          </button>
+          <button class="hud-btn" id="btn-lobby-leave" style="flex: 1; justify-content: center;">
+            Leave Room
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==========================================
+         SCREEN 3: THE CARD TABLE
+         ========================================== -->
+    <div id="screen-game" class="screen">
+      <!-- Wood Bezel Frame matching theme_modern.webp -->
+      <div class="table-wood-bezel"></div>
+
+      <!-- Main Play Arena Background (Cricket Stadium by default) -->
+      <div class="table-arena theme-stadium" id="table-arena">
+        
+        <!-- Top HUD -->
+        <div class="hud-top-bar">
+          <!-- Top Left: Wooden clipboard with round indicator -->
+          <div class="hud-clipboard-btn" id="btn-hud-round" title="Scorecard">
+            <span class="clipboard-round-val" id="hud-round-indicator">2/5</span>
+          </div>
+
+          <!-- Top Right Controls -->
+          <div class="hud-top-right">
+            <!-- Card/Clock timer badge with gem count -->
+            <div class="hud-timer-badge" id="btn-hud-timer">
+              <span class="timer-card-icon"></span>
+              <span class="gem-badge-text">2 💎</span>
+            </div>
+            <!-- Settings Wooden Gear -->
+            <button class="hud-wood-btn btn-settings" id="btn-open-settings" title="Settings">
+              <img src="assets/icon_settings.png" alt="Settings">
+            </button>
+          </div>
+        </div>
+
+        <!-- North Player (Opponent Top: Meena.S) -->
+        <div class="player-pod pod-north" id="seat-north">
+          <div class="pod-header-pill">
+            <span class="online-indicator"></span>
+            <span class="player-name-text" id="name-north">Meena.S</span>
+            <span class="player-flag">🇮🇳</span>
+          </div>
+          <div class="pod-score-pill" id="bid-tricks-north">2/1</div>
+          
+          <div class="avatar-container">
+            <div class="opponent-cards-fan fan-north" id="fan-north"></div>
+            <div class="avatar-photo-wrap" id="avatar-wrap-north">
+              <img id="avatar-img-north" src="assets/avatar_meena.jpg" alt="Meena" class="avatar-img">
+              <div class="dealer-chip" id="dealer-north" style="display: none;">D</div>
+              <div class="turn-ring"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- West Player (Opponent Left: Lily34) -->
+        <div class="player-pod pod-west" id="seat-west">
+          <div class="pod-header-pill">
+            <span class="player-name-text" id="name-west">Lily34</span>
+            <span class="suit-badge">♠</span>
+          </div>
+          <div class="pod-score-pill" id="bid-tricks-west">0/3</div>
+
+          <div class="avatar-container">
+            <div class="opponent-cards-fan fan-west" id="fan-west"></div>
+            <div class="avatar-photo-wrap" id="avatar-wrap-west">
+              <img id="avatar-img-west" src="assets/avatar_lily.jpg" alt="Lily" class="avatar-img">
+              <div class="dealer-chip" id="dealer-west" style="display: none;">D</div>
+              <div class="turn-ring"></div>
+            </div>
+          </div>
+
+          <!-- Floating Chat Button -->
+          <button class="table-floating-btn btn-chat" id="btn-chat-trigger" title="Chat">
+            <img src="assets/chat_icon_text.webp" alt="Chat">
+          </button>
+          <div class="chat-bubble-popup" id="bubble-west"></div>
+        </div>
+
+        <!-- East Player (Opponent Right: Dannie) -->
+        <div class="player-pod pod-east" id="seat-east">
+          <div class="pod-header-pill">
+            <span class="player-name-text" id="name-east">Dannie</span>
+            <span class="suit-badge">♠</span>
+          </div>
+          <div class="pod-score-pill" id="bid-tricks-east">1/4</div>
+
+          <div class="avatar-container">
+            <div class="opponent-cards-fan fan-east" id="fan-east"></div>
+            <div class="avatar-photo-wrap" id="avatar-wrap-east">
+              <img id="avatar-img-east" src="assets/avatar_dannie.jpg" alt="Dannie" class="avatar-img">
+              <div class="dealer-chip" id="dealer-east" style="display: none;">D</div>
+              <div class="turn-ring"></div>
+            </div>
+          </div>
+
+          <!-- Floating Emoji Button -->
+          <button class="table-floating-btn btn-emoji" id="btn-emoji-trigger" title="Emoji">
+            <img src="assets/chat_icon_emoji.webp" alt="Emoji">
+          </button>
+          <div class="chat-bubble-popup" id="bubble-east"></div>
+        </div>
+
+        <!-- Center Trick Play Area -->
+        <div class="center-arena" id="center-trick-area">
+          <div class="trick-card-slot slot-north" id="trick-north"></div>
+          <div class="trick-card-slot slot-west" id="trick-west"></div>
+          <div class="trick-card-slot slot-east" id="trick-east"></div>
+          <div class="trick-card-slot slot-south" id="trick-south"></div>
+          <div class="trick-winner-banner" id="trick-winner-banner">Player Won Trick</div>
+        </div>
+
+        <!-- South Player (Bottom Center: YOU) -->
+        <div class="player-pod pod-south" id="seat-south">
+          <div class="south-meta-bar">
+            <div class="pod-header-pill south-pill">
+              <span class="signal-bars">📶</span>
+              <span class="player-name-text" id="name-south">YOU</span>
+              <span class="player-flag">🇮🇳</span>
+            </div>
+            <div class="gem-counter-pill">
+              <span class="gem-symbol">💎</span>
+              <span id="south-gem-val">13570</span>
+            </div>
+          </div>
+
+          <div class="avatar-photo-wrap south-avatar" id="avatar-wrap-south">
+            <img id="avatar-img-south" src="assets/avatar_you.jpg" alt="You" class="avatar-img">
+            <div class="dealer-chip" id="dealer-south" style="display: none;">D</div>
+            <div class="turn-ring"></div>
+          </div>
+
+          <div class="pod-score-pill south-score" id="bid-tricks-south">1/4</div>
+        </div>
+
+        <!-- Player Hand Cards -->
+        <div class="player-hand-container">
+          <div class="hand-cards-wrapper" id="player-hand-wrapper">
+            <!-- 13 interactive cards generated here -->
+          </div>
+        </div>
+
+        <!-- In-Game Notice / Toast for Illegal Card feedback -->
+        <div id="game-toast" class="game-toast"></div>
+
+      </div>
+    </div>
+
+
+    <!-- ==========================================
+         MODAL 1: MAKE A CALL (WOODEN SLIDER PICKER)
+         ========================================== -->
+    <div class="modal-overlay" id="modal-bidding">
+      <div class="bidding-dialog-panel">
+        <h2 class="bidding-title">Make a Call</h2>
+
+        <!-- Numbers 1 to 8 above the slider -->
+        <div class="bidding-numbers-row">
+          <span class="num-mark" data-val="1">1</span>
+          <span class="num-mark" data-val="2">2</span>
+          <span class="num-mark" data-val="3">3</span>
+          <span class="num-mark active" data-val="4">4</span>
+          <span class="num-mark" data-val="5">5</span>
+          <span class="num-mark" data-val="6">6</span>
+          <span class="num-mark" data-val="7">7</span>
+          <span class="num-mark" data-val="8">8</span>
+        </div>
+
+        <!-- Wooden Slider Track -->
+        <div class="wooden-slider-container">
+          <input type="range" min="1" max="8" value="4" class="wooden-range-slider" id="bid-slider">
+          <div class="wooden-slider-track">
+            <div class="wooden-slider-fill" id="bid-slider-fill" style="width: 42.8%;"></div>
+            <div class="wooden-slider-thumb" id="bid-slider-thumb" style="left: 42.8%;"></div>
+          </div>
+        </div>
+
+        <!-- Controls Row -->
+        <div class="bidding-controls-row">
+          <!-- Hint Lightbulb Button -->
+          <button class="bidding-circle-btn btn-hint" id="btn-bid-hint" title="Suggested Call">
+            <span class="icon-bulb">💡</span>
+          </button>
+
+          <!-- Minus Button -->
+          <button class="bidding-wood-btn btn-minus" id="btn-bid-minus" title="Decrease">
+            <img src="assets/oval-minus.webp" alt="-">
+          </button>
+
+          <!-- Current Call Number -->
+          <div class="bidding-number-display" id="bidding-current-val">4</div>
+
+          <!-- Plus Button -->
+          <button class="bidding-wood-btn btn-plus" id="btn-bid-plus" title="Increase">
+            <span class="icon-plus">+</span>
+          </button>
+
+          <!-- Green Checkmark Confirm Button -->
+          <button class="bidding-circle-btn btn-confirm" id="btn-bid-confirm" title="Confirm Call">
+            <img src="assets/checked_ok_with_shadow.webp" alt="✔">
+          </button>
+        </div>
+
+        <div id="ai-bid-recommendation" class="bidding-ai-hint">
+          💡 Suggested Call: 4 Tricks
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==========================================
+         MODAL 2: 20-ROUND SCORECARD LEDGER
+         ========================================== -->
+    <div class="modal-overlay" id="modal-scoreboard">
+      <div class="scoreboard-ledger-card">
+        <!-- Close button at top corner -->
+        <button class="btn-close-ledger" id="btn-close-scoreboard">✕</button>
+
+        <!-- Left Tabs -->
+        <div class="ledger-left-tabs">
+          <div class="ledger-tab">World</div>
+          <div class="ledger-tab">Stakes</div>
+          <div class="ledger-tab active" id="tab-round-mode">5 Round</div>
+          <div class="ledger-tab-dots">
+            <span>●</span>
+            <span>●</span>
+            <span>●</span>
+          </div>
+        </div>
+
+        <!-- Main Ledger Table Container -->
+        <div class="ledger-content">
+          <div class="ledger-table-wrap">
+            <table class="ledger-table" id="scoreboard-table">
+              <thead>
+                <tr>
+                  <th class="col-round">Round</th>
+                  <th class="col-player" id="th-p2">
+                    <div class="ledger-player-head">
+                      <img src="assets/avatar_lily.jpg" alt="Lily" class="ledger-avatar">
+                      <span class="name">Lily34 🇮🇳</span>
+                    </div>
+                  </th>
+                  <th class="col-player" id="th-p3">
+                    <div class="ledger-player-head">
+                      <img src="assets/avatar_meena.jpg" alt="Meena" class="ledger-avatar">
+                      <span class="name">Meena.S 🇮🇳</span>
+                    </div>
+                  </th>
+                  <!-- Highlighted Elevated Column for YOU -->
+                  <th class="col-player col-you-elevated" id="th-p1">
+                    <div class="ledger-player-head">
+                      <div class="avatar-ring-head">
+                        <img src="assets/avatar_you.jpg" alt="You" class="ledger-avatar active-ring">
+                        <span class="green-dot"></span>
+                      </div>
+                      <span class="name">You 🇮🇳</span>
+                    </div>
+                  </th>
+                  <th class="col-player" id="th-p4">
+                    <div class="ledger-player-head">
+                      <img src="assets/avatar_dannie.jpg" alt="Dannie" class="ledger-avatar">
+                      <span class="name">Dannie 🇮🇳</span>
+                    </div>
+                  </th>
+                  <th class="col-sum">
+                    <div class="sum-header">
+                      <img src="assets/share.webp" alt="Share" class="share-icon" id="btn-ledger-share">
+                      <span>Sum</span>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="scoreboard-tbody">
+                <!-- Dynamically populated rounds -->
+              </tbody>
+              <tfoot>
+                <tr class="ledger-overall-row">
+                  <td class="row-label">Overall Score</td>
+                  <td id="tot-p2">0.0</td>
+                  <td id="tot-p3">0.0</td>
+                  <td class="col-you-elevated font-green" id="tot-p1">0.0</td>
+                  <td id="tot-p4">0.0</td>
+                  <td class="col-sum">-</td>
+                </tr>
+                <tr class="ledger-projected-row">
+                  <td class="row-label">Projected Score</td>
+                  <td id="proj-p2">0.0</td>
+                  <td id="proj-p3">0.0</td>
+                  <td class="col-you-elevated font-green" id="proj-p1">0.0</td>
+                  <td id="proj-p4">0.0</td>
+                  <td class="col-sum">-</td>
+                </tr>
+                <tr class="ledger-rank-row">
+                  <td class="row-label-branding">♠ by Teslatech</td>
+                  <td id="rank-p2">3rd</td>
+                  <td id="rank-p3">4th</td>
+                  <td class="col-you-elevated rank-you" id="rank-p1">1st</td>
+                  <td id="rank-p4">2nd</td>
+                  <td class="col-sum">-</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <div id="round-over-actions" style="display: none; margin-top: 14px; text-align: center;">
+            <button class="btn-primary-action" id="btn-proceed-next-round" style="max-width: 320px; margin: auto;">
+              PROCEED TO NEXT ROUND ➔
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==========================================
+         MODAL 3: FINAL GAME OVER & PODIUM
+         ========================================== -->
+    <div class="modal-overlay" id="modal-gameover">
+      <div class="modal-box">
+        <h1 style="color: var(--gold-light); font-size: 28px; font-family: 'Playfair Display', serif;">
+          🏆 MATCH COMPLETE!
+        </h1>
+        <p style="font-size: 14px; color: var(--text-muted); margin-top: 4px;" id="gameover-round-subtitle">
+          20-Round Callbreak Tournament Winner
+        </p>
+
+        <div class="podium-container" id="podium-container">
+          <!-- 2nd Place -->
+          <div class="podium-place podium-2nd">
+            <div class="podium-trophy">🥈</div>
+            <div class="podium-name" id="podium-p2-name">Player 2</div>
+            <div class="podium-score" id="podium-p2-score">0.0 pts</div>
+          </div>
+          <!-- 1st Place -->
+          <div class="podium-place podium-1st">
+            <div class="podium-trophy">👑</div>
+            <div class="podium-name" id="podium-p1-name">You</div>
+            <div class="podium-score" id="podium-p1-score">0.0 pts</div>
+          </div>
+          <!-- 3rd Place -->
+          <div class="podium-place podium-3rd">
+            <div class="podium-trophy">🥉</div>
+            <div class="podium-name" id="podium-p3-name">Player 3</div>
+            <div class="podium-score" id="podium-p3-score">0.0 pts</div>
+          </div>
+        </div>
+
+        <div id="podium-p4-row" style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
+          4th Place: <strong id="podium-p4-name">Player 4</strong> (<span id="podium-p4-score">0.0</span> pts)
+        </div>
+
+        <button class="btn-primary-action" id="btn-gameover-rematch">
+          PLAY AGAIN (MAIN MENU)
+        </button>
+      </div>
+    </div>
+
+
+    <!-- ==========================================
+         MODAL 4: SETTINGS & THEME PICKER
+         ========================================== -->
+    <div class="modal-overlay" id="modal-settings">
+      <div class="modal-box" style="max-width: 440px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h2 style="color: var(--gold-light); font-size: 22px;">⚙️ Game Settings</h2>
+          <button class="hud-btn" id="btn-close-settings">✕ Close</button>
+        </div>
+
+        <label class="round-selector-label">Table Background Theme</label>
+        <div class="round-pills" id="theme-pills" style="margin-bottom: 18px;">
+          <div class="round-pill selected" data-theme="stadium">🏟️ Stadium</div>
+          <div class="round-pill" data-theme="palace">🏛️ Palace</div>
+          <div class="round-pill" data-theme="lake">🌲 Lake</div>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button class="hud-btn" id="btn-toggle-sound-settings" style="flex: 1; justify-content: center;">
+            🔊 Sound: ON
+          </button>
+          <button class="hud-btn" id="btn-exit-to-menu" style="flex: 1; justify-content: center; background: rgba(198, 40, 40, 0.2); border-color: #ef5350;">
+            🚪 Exit Match
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/audio.js?v=2"></script>
+  <script src="js/cards.js?v=2"></script>
+  <script src="js/engine.js?v=2"></script>
+  <script src="js/ai.js?v=2"></script>
+  <script src="js/network.js?v=2"></script>
+  <script src="js/app.js?v=2"></script>
+</body>
+</html>
